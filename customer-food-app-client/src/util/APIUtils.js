@@ -57,6 +57,8 @@ export function login(loginRequest) {
     });
 }
 
+
+
 export function signup(signupRequest) {
     return request({
         url: API_BASE_URL + "/auth/signup",
@@ -64,6 +66,16 @@ export function signup(signupRequest) {
         body: JSON.stringify(signupRequest)
     });
 }
+
+
+export function editprofile (editRequest) {
+    return request({
+        url: API_BASE_URL + "/api/users/{username}",
+        method: 'POST',
+        body: JSON.stringify(editRequest)
+    });
+}
+
 
 export function checkUsernameAvailability(username) {
     return request({
@@ -97,6 +109,14 @@ export function getUserProfile(username) {
         method: 'GET'
     });
 }
+
+
+// export function getUserProfile(username, contactno) {
+//     return request({
+//         url: API_BASE_URL + "/users/" + username + "/users/" +contactno,
+//         method: 'GET'
+//     });
+// }
 
 export function getUserCreatedPolls(username, page, size) {
     page = page || 0;

@@ -1,62 +1,105 @@
-//package hello.Controller;
-//import hello.Model.Customer;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.Optional;
-//
-//import java.util.List;
-//
-//import javax.validation.Valid;
-//
-////
-//@RestController
-//@RequestMapping("/api/v1/user")
-//@Slf4j
-//@RequiredArgsConstructor
-//public class UserController {
-//    private final hello.Service.UserService UserService;
-//    @GetMapping
-//    public ResponseEntity<List<Customer>> findAll() {
-//        return ResponseEntity.ok(UserService.findAll());
+package hello.Controller;
+
+import hello.Model.User;
+import hello.Payload.UserIdentityAvailability;
+import hello.Payload.UserProfile;
+import hello.Payload.UserSummary;
+import hello.Security.CurrentUser;
+import hello.Security.UserPrincipal;
+import hello.exception.ResourceNotFoundException;
+import hello.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/api")
+public class UserController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+//    @Autowired
+//    private PollRepository pollRepository;
+
+//    @Autowired
+//    private VoteRepository voteRepository;
+
+//    @Autowired
+//    private PollService pollService;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @GetMapping("/user/me")
+    @PreAuthorize("hasRole('USER')")
+    public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+        UserSummary userSummary = new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getName());
+        return userSummary;
+    }
+
+    @GetMapping("/user/checkUsernameAvailability")
+    public UserIdentityAvailability checkUsernameAvailability(@RequestParam(value = "username") String username) {
+        Boolean isAvailable = !userRepository.existsByUsername(username);
+        return new UserIdentityAvailability(isAvailable);
+    }
+
+    @GetMapping("/user/checkEmailAvailability")
+    public UserIdentityAvailability checkEmailAvailability(@RequestParam(value = "email") String email) {
+        Boolean isAvailable = !userRepository.existsByEmail(email);
+        return new UserIdentityAvailability(isAvailable);
+    }
+
+    @GetMapping("/users/{username}")
+    public UserProfile getUserProfile(@PathVariable(value = "username") String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+//        long pollCount = PollRepository.countByCreatedBy(user.getId());
+//        long voteCount = voteRepository.countByUserId(user.getId());
+
+        UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getContactno(),user.getEmail());
+
+        return userProfile;
+    }
+
+    @PostMapping("/users/{username}")
+    public User updateUser(@PathVariable(value = "username") String username,
+                           @Valid @RequestBody User userDetails) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        user.setName(userDetails.getName());
+        user.setContactno(userDetails.getContactno());
+        user.setEmail(userDetails.getEmail());
+        user.setPassword(userDetails.getPassword());
+        User updatedUser = userRepository.save(user);
+        return updatedUser;
+    }
+
+
+
+//    @GetMapping("/users/{username}/polls")
+//    public PagedResponse<PollResponse> getPollsCreatedBy(@PathVariable(value = "username") String username,
+//                                                         @CurrentUser UserPrincipal currentUser,
+//                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+//                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+//        return pollService.getPollsCreatedBy(username, currentUser, page, size);
 //    }
-//    @PostMapping
-//    public ResponseEntity create(@Valid @RequestBody Customer product) {
-//        return ResponseEntity.ok(UserService.save(product));
-//    }
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Customer> findById(@PathVariable Long id) {
-//        Optional<Customer> stock = UserService.findById(id);
-//        if (!stock.isPresent()) {
-//            log.error("Id " + id + " is not existed");
-//            ResponseEntity.badRequest().build();
-//        }
-//        return ResponseEntity.ok(stock.get());
-//    }
 //
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Customer> update(@PathVariable Long id, @Valid @RequestBody Customer product) {
-//        if (!UserService.findById(id).isPresent()) {
-//            log.error("Id " + id + " is not existed");
-//            ResponseEntity.badRequest().build();
-//        }
-//        return ResponseEntity.ok(UserService.save(product));
-//    }
 //
-////    @PutMapping("user")
-////    public ResponseEntity<Customer> updateUser(@RequestBody Customer user) {
-////        UserService.save(user);
-////        return new ResponseEntity<Customer>(user, HttpStatus.OK);
-////    }
+//    @GetMapping("/users/{username}/votes")
+//    public PagedResponse<PollResponse> getPollsVotedBy(@PathVariable(value = "username") String username,
+//                                                       @CurrentUser UserPrincipal currentUser,
+//                                                       @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+//                                                       @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+//        return pollService.getPollsVotedBy(username, currentUser, page, size);
+    //}
+
+
 //
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity delete(@PathVariable Long id) {
-//        if (!UserService.findById(id).isPresent()) {
-//            log.error("Id " + id + " is not existed");
-//            ResponseEntity.badRequest().build();
-//        }
-//        UserService.deleteById(id);
-//        return ResponseEntity.ok().build();
-//   }}
+}
+
+

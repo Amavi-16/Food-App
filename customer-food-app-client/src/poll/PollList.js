@@ -134,7 +134,7 @@ class PollList extends Component {
                 this.props.handleLogout('/login', 'error', 'You have been logged out. Please login to vote');
             } else {
                 notification.error({
-                    message: 'Polling App',
+                    message: 'Food Delivery App',
                     description: error.message || 'Sorry! Something went wrong. Please try again!'
                 });
             }
@@ -158,7 +158,7 @@ class PollList extends Component {
         {
             !this.state.isLoading && this.state.polls.length === 0 ? (
                 <div className="no-polls-found">
-                <span>No Polls Found.</span>
+                <span>No Order Found.</span>
         </div>
         ): null
         }

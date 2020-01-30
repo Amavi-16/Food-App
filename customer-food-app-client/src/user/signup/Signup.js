@@ -106,6 +106,8 @@ class Signup extends Component {
         value={this.state.name.value}
         onChange={(event) => this.handleInputChange(event, this.validateName)} />
         </FormItem>
+
+
         <FormItem label="Username"
         hasFeedback
         validateStatus={this.state.username.validateStatus}
@@ -150,8 +152,8 @@ class Signup extends Component {
         <FormItem>
         <FormItem
         label="Contact No"
-        validateStatus={this.state.name.validateStatus}
-        help={this.state.name.errorMsg}>
+        validateStatus={this.state.contactno.validateStatus}
+        help={this.state.contactno.errorMsg}>
     <Input
         size="large"
         name="contactno"
@@ -246,12 +248,12 @@ class Signup extends Component {
         if(contactno.length < CONTACTNO_MIN_LENGTH) {
             return {
                 validateStatus: 'error',
-                errorMsg: `Name is too short (Minimum ${CONTACTNO_MIN_LENGTH} characters needed.)`
+                errorMsg: `Contact number is incorrect`
             }
         } else if (contactno.length > CONTACTNO_MAX_LENGTH) {
             return {
                 validationStatus: 'error',
-                errorMsg: `Contact number is incorrect (Maximum ${CONTACTNO_MAX_LENGTH} characters allowed.)`
+                errorMsg: `Contact number is incorrect`
             }
         } else {
             return {
